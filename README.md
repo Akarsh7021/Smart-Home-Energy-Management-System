@@ -57,7 +57,7 @@ await api.post("/auth/login", { email, password });
 
 ## API documentation
 
-Swagger UI is available at <http://localhost:8080/swagger-ui/index.html> while the application is running. It documents each operation's name, purpose, parameters, possible response statuses, request examples, response fields, and permission requirements. The generated OpenAPI description also identifies the `NIGHTGRID_SESSION` cookie and `X-XSRF-TOKEN` header security schemes.
+Swagger UI is available at <http://localhost:8080/swagger-ui/index.html> while the application is running. It documents each operation's name, purpose, parameters, possible response statuses, request examples, response fields, and permission requirements. The generated OpenAPI description also identifies the `NIGHTGRID_SESSION` cookie and `X-XSRF-TOKEN` header security schemes. Before using a `POST` or `PATCH` operation in Swagger, execute `GET /api/auth/csrf`; Swagger then copies the CSRF cookie into the required header automatically.
 
 ## Project structure
 

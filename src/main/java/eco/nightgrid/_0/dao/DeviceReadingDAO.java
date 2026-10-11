@@ -32,4 +32,8 @@ public interface DeviceReadingDAO extends JpaRepository<DeviceReading, UUID> {
 			@Param("deviceId") UUID deviceId,
 			@Param("startTime") OffsetDateTime startTime,
 			@Param("endTime") OffsetDateTime endTime);
+
+	List<DeviceReading> findAllByRecordedAtBetween(
+			OffsetDateTime startTime,
+			OffsetDateTime endTime);
 }

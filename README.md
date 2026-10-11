@@ -98,8 +98,6 @@ DTOs keep API data separate from JPA entities. The service performs permission c
 ## Current backend status
 
 The core backend described in the SDD is implemented. Before the first complete frontend demonstration, the following work remains:
-
-- add unit, controller/security, and PostgreSQL integration tests for the SDD acceptance cases;
 - run a full end-to-end test with the React application and Docker database;
 
 Run the automated tests with the database container started:

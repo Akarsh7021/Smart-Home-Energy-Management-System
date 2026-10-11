@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -28,6 +29,16 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
 			HttpServletRequest request,
 			HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
+		if ("/api/auth/login".equals(request.getServletPath())) {
+			writeError(
+					response,
+					HttpServletResponse.SC_UNAUTHORIZED,
+					ApiEnvelope.fail(
+							"AUTHENTICATION_FAILED",
+							"The email or password is incorrect."));
+			return;
+		}
+
 		writeError(
 				response,
 				HttpServletResponse.SC_UNAUTHORIZED,
@@ -39,6 +50,16 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
 			HttpServletRequest request,
 			HttpServletResponse response,
 			AccessDeniedException exception) throws IOException, ServletException {
+		if (exception instanceof CsrfException) {
+			writeError(
+					response,
+					HttpServletResponse.SC_FORBIDDEN,
+					ApiEnvelope.fail(
+							"INVALID_CSRF_TOKEN",
+							"Security validation failed. Refresh the page and try again."));
+			return;
+		}
+
 		writeError(
 				response,
 				HttpServletResponse.SC_FORBIDDEN,

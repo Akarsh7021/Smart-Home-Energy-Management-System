@@ -60,14 +60,17 @@ public class SmartHomeController {
 	@GetMapping("/auth/csrf")
 	@Operation(
 			summary = "Get a CSRF token",
-			description = "Creates or refreshes the token required in the X-XSRF-TOKEN header for state-changing requests.")
-	@ApiResponse(responseCode = "200", description = "CSRF token returned successfully.")
+			description = "Creates or refreshes the XSRF-TOKEN cookie. The client copies that cookie value into the X-XSRF-TOKEN header for state-changing requests.")
+	@ApiResponse(responseCode = "200", description = "CSRF cookie created or refreshed successfully.")
 	public ApiEnvelope<CsrfTokenDTO> getCsrfToken(
 			@Parameter(hidden = true) CsrfToken csrfToken) {
+		// Accessing the deferred token causes Spring Security to write its raw value
+		// to the XSRF-TOKEN cookie. The value returned by getToken() is masked and
+		// must not be used as the SPA's X-XSRF-TOKEN request header.
+		csrfToken.getToken();
 		return ApiEnvelope.ok(new CsrfTokenDTO(
-				csrfToken.getHeaderName(),
-				csrfToken.getParameterName(),
-				csrfToken.getToken()));
+				"XSRF-TOKEN",
+				csrfToken.getHeaderName()));
 	}
 
 	@PostMapping("/auth/login")

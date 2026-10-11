@@ -23,6 +23,6 @@ import org.springframework.context.annotation.Configuration;
 		type = SecuritySchemeType.APIKEY,
 		in = SecuritySchemeIn.HEADER,
 		paramName = "X-XSRF-TOKEN",
-		description = "CSRF token returned by GET /api/auth/csrf. Required for POST, PATCH, and DELETE requests.")
+		description = "Value copied from the XSRF-TOKEN cookie after calling GET /api/auth/csrf. Required for POST, PATCH, and DELETE requests.")
 public class OpenApiConfig {
 }

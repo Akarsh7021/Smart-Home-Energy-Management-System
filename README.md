@@ -40,7 +40,20 @@ PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the 
 
 API responses use one common `ApiEnvelope` containing the operation status, message, returned data, or error details. The React Axios interceptor can unwrap this envelope and display notifications before passing data to components.
 
-The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. For each `POST`, `PATCH`, or `DELETE`, it sends the returned token using the returned header name (`X-XSRF-TOKEN`).
+The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. Axios reads the raw value from the `XSRF-TOKEN` cookie and sends it in the `X-XSRF-TOKEN` header for each `POST`, `PATCH`, or `DELETE`. The token value in Spring's controller argument is masked for BREACH protection and is intentionally not returned in the JSON body.
+
+```javascript
+const api = axios.create({
+  baseURL: "http://localhost:8080/api",
+  withCredentials: true,
+  withXSRFToken: true,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
+});
+
+await api.get("/auth/csrf");
+await api.post("/auth/login", { email, password });
+```
 
 ## API documentation
 

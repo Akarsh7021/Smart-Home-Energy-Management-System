@@ -6,6 +6,7 @@ import eco.nightgrid._0.dto.DashboardSummaryDTO;
 import eco.nightgrid._0.dto.DeviceControlRequestDTO;
 import eco.nightgrid._0.dto.DeviceDTO;
 import eco.nightgrid._0.dto.LoginRequestDTO;
+import eco.nightgrid._0.dto.PermissionUpdateRequestDTO;
 import eco.nightgrid._0.dto.UserDTO;
 import eco.nightgrid._0.service.SmartHomeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,6 +99,20 @@ public class SmartHomeController {
 		return ApiEnvelope.ok(
 				device,
 				"Device turned " + device.status().toLowerCase(Locale.ROOT) + ".");
+	}
+
+	@PatchMapping("/members/{memberId}/permissions")
+	public ApiEnvelope<UserDTO> handlePermissionUpdate(
+			@PathVariable String memberId,
+			@Valid @RequestBody PermissionUpdateRequestDTO permissionRequest,
+			Authentication authentication) {
+		AuthenticatedUser currentUser = requireAuthenticatedUser(authentication);
+		UserDTO member = smartHomeService.setMemberPermissions(
+				currentUser.userId().toString(),
+				memberId,
+				permissionRequest.canControlDevices(),
+				permissionRequest.canViewEnergy());
+		return ApiEnvelope.ok(member, "Member permissions updated.");
 	}
 
 	private AuthenticatedUser requireAuthenticatedUser(Authentication authentication) {

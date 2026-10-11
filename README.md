@@ -42,6 +42,10 @@ API responses use one common `ApiEnvelope` containing the operation status, mess
 
 The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. For each `POST`, `PATCH`, or `DELETE`, it sends the returned token using the returned header name (`X-XSRF-TOKEN`).
 
+## API documentation
+
+Swagger UI is available at <http://localhost:8080/swagger-ui/index.html> while the application is running. It documents each operation's name, purpose, parameters, possible response statuses, request examples, response fields, and permission requirements. The generated OpenAPI description also identifies the `NIGHTGRID_SESSION` cookie and `X-XSRF-TOKEN` header security schemes.
+
 ## Project structure
 
 ```text
@@ -82,7 +86,6 @@ The core backend described in the SDD is implemented. Before the first complete 
 
 - add unit, controller/security, and PostgreSQL integration tests for the SDD acceptance cases;
 - run a full end-to-end test with the React application and Docker database;
-- optionally add richer OpenAPI descriptions and examples to the generated documentation.
 
 Run the automated tests with the database container started:
 

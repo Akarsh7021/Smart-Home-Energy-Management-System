@@ -13,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,6 +57,17 @@ public class SmartHomeController {
 		return ApiEnvelope.ok(
 				smartHomeService.getUser(currentUser.userId().toString()),
 				"Signed in successfully.");
+	}
+
+	@PostMapping("/auth/logout")
+	public ApiEnvelope<Void> handleLogout(
+			Authentication authentication,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+		new SecurityContextLogoutHandler().logout(request, response, authentication);
+		new CookieClearingLogoutHandler("NIGHTGRID_SESSION", "XSRF-TOKEN")
+				.logout(request, response, authentication);
+		return ApiEnvelope.ok(null, "Signed out successfully.");
 	}
 
 	private AuthenticatedUser requireAuthenticatedUser(Authentication authentication) {

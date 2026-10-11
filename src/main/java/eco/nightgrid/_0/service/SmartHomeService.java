@@ -69,6 +69,10 @@ public class SmartHomeService {
 				canViewEnergy ? calculateEnergySummary(readings) : emptyEnergySummary());
 	}
 
+	public UserDTO getUser(String userId) {
+		return toUserDTO(findUser(userId));
+	}
+
 	public List<DeviceDTO> getDevices(String userId) {
 		User currentUser = findUser(userId);
 		return toDeviceDTOs(

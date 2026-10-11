@@ -30,7 +30,8 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(
 			HttpSecurity http,
 			SecurityContextRepository securityContextRepository,
-			CorsConfigurationSource corsConfigurationSource) throws Exception {
+			CorsConfigurationSource corsConfigurationSource,
+			SecurityErrorHandler securityErrorHandler) throws Exception {
 		http
 				.csrf(csrf -> csrf.csrfTokenRepository(
 						CookieCsrfTokenRepository.withHttpOnlyFalse()))
@@ -39,6 +40,9 @@ public class SecurityConfig {
 						.securityContextRepository(securityContextRepository))
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+				.exceptionHandling(exceptions -> exceptions
+						.authenticationEntryPoint(securityErrorHandler)
+						.accessDeniedHandler(securityErrorHandler))
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

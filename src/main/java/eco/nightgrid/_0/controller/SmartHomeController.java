@@ -2,6 +2,7 @@ package eco.nightgrid._0.controller;
 
 import eco.nightgrid._0.config.security.AuthenticatedUser;
 import eco.nightgrid._0.dto.ApiEnvelope;
+import eco.nightgrid._0.dto.CsrfTokenDTO;
 import eco.nightgrid._0.dto.DashboardSummaryDTO;
 import eco.nightgrid._0.dto.DeviceControlRequestDTO;
 import eco.nightgrid._0.dto.DeviceDTO;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +48,14 @@ public class SmartHomeController {
 		this.smartHomeService = smartHomeService;
 		this.authenticationManager = authenticationManager;
 		this.securityContextRepository = securityContextRepository;
+	}
+
+	@GetMapping("/auth/csrf")
+	public ApiEnvelope<CsrfTokenDTO> getCsrfToken(CsrfToken csrfToken) {
+		return ApiEnvelope.ok(new CsrfTokenDTO(
+				csrfToken.getHeaderName(),
+				csrfToken.getParameterName(),
+				csrfToken.getToken()));
 	}
 
 	@PostMapping("/auth/login")

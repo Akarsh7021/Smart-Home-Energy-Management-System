@@ -31,6 +31,7 @@ PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the 
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
+| `GET` | `/api/auth/csrf` | Create or refresh the CSRF token used by the React client |
 | `POST` | `/api/auth/login` | Authenticate a user and create a session |
 | `POST` | `/api/auth/logout` | End the current session |
 | `GET` | `/api/dashboard` | Return the current user, devices, members, overview, and weekly energy summary |
@@ -38,6 +39,8 @@ PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the 
 | `PATCH` | `/api/members/{memberId}/permissions` | Change a member's device-control and energy-view permissions |
 
 API responses use one common `ApiEnvelope` containing the operation status, message, returned data, or error details. The React Axios interceptor can unwrap this envelope and display notifications before passing data to components.
+
+The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. For each `POST`, `PATCH`, or `DELETE`, it sends the returned token using the returned header name (`X-XSRF-TOKEN`).
 
 ## Project structure
 
@@ -78,7 +81,6 @@ DTOs keep API data separate from JPA entities. The service performs permission c
 The core backend described in the SDD is implemented. Before the first complete frontend demonstration, the following work remains:
 
 - add unit, controller/security, and PostgreSQL integration tests for the SDD acceptance cases;
-- complete and test the React CSRF-token bootstrap and refresh flow for login and logout;
 - run a full end-to-end test with the React application and Docker database;
 - optionally add richer OpenAPI descriptions and examples to the generated documentation.
 

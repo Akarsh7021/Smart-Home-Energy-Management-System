@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,8 +32,7 @@ public class SecurityConfig {
 			CorsConfigurationSource corsConfigurationSource,
 			SecurityErrorHandler securityErrorHandler) throws Exception {
 		http
-				.csrf(csrf -> csrf.csrfTokenRepository(
-						CookieCsrfTokenRepository.withHttpOnlyFalse()))
+				.csrf(csrf -> csrf.spa())
 				.cors(cors -> cors.configurationSource(corsConfigurationSource))
 				.securityContext(context -> context
 						.securityContextRepository(securityContextRepository))
@@ -44,6 +42,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(securityErrorHandler)
 						.accessDeniedHandler(securityErrorHandler))
 				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 						.anyRequest().authenticated());

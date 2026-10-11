@@ -13,8 +13,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,15 +34,20 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(
 			HttpSecurity http,
 			SecurityContextRepository securityContextRepository,
+			CookieCsrfTokenRepository csrfTokenRepository,
+			SessionAuthenticationStrategy sessionAuthenticationStrategy,
 			CorsConfigurationSource corsConfigurationSource,
 			SecurityErrorHandler securityErrorHandler) throws Exception {
 		http
-				.csrf(csrf -> csrf.spa())
+				.csrf(csrf -> csrf
+						.spa()
+						.csrfTokenRepository(csrfTokenRepository))
 				.cors(cors -> cors.configurationSource(corsConfigurationSource))
 				.securityContext(context -> context
 						.securityContextRepository(securityContextRepository))
 				.sessionManagement(session -> session
-						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+						.sessionAuthenticationStrategy(sessionAuthenticationStrategy))
 				.exceptionHandling(exceptions -> exceptions
 						.authenticationEntryPoint(securityErrorHandler)
 						.accessDeniedHandler(securityErrorHandler))
@@ -73,6 +83,25 @@ public class SecurityConfig {
 	@Bean
 	public SecurityContextRepository securityContextRepository() {
 		return new HttpSessionSecurityContextRepository();
+	}
+
+	@Bean
+	public CookieCsrfTokenRepository csrfTokenRepository(
+			@Value("${server.servlet.session.cookie.secure}") boolean secureCookie) {
+		CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		repository.setCookieCustomizer(cookie -> cookie
+				.path("/")
+				.secure(secureCookie)
+				.sameSite("Strict"));
+		return repository;
+	}
+
+	@Bean
+	public SessionAuthenticationStrategy sessionAuthenticationStrategy(
+			CookieCsrfTokenRepository csrfTokenRepository) {
+		return new CompositeSessionAuthenticationStrategy(List.of(
+				new ChangeSessionIdAuthenticationStrategy(),
+				new CsrfAuthenticationStrategy(csrfTokenRepository)));
 	}
 
 	@Bean

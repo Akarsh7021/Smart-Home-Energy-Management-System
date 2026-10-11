@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,14 +48,17 @@ public class SmartHomeController {
 	private final SmartHomeService smartHomeService;
 	private final AuthenticationManager authenticationManager;
 	private final SecurityContextRepository securityContextRepository;
+	private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
 	public SmartHomeController(
 			SmartHomeService smartHomeService,
 			AuthenticationManager authenticationManager,
-			SecurityContextRepository securityContextRepository) {
+			SecurityContextRepository securityContextRepository,
+			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
 		this.smartHomeService = smartHomeService;
 		this.authenticationManager = authenticationManager;
 		this.securityContextRepository = securityContextRepository;
+		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
 	}
 
 	@GetMapping("/auth/csrf")
@@ -92,6 +96,7 @@ public class SmartHomeController {
 				UsernamePasswordAuthenticationToken.unauthenticated(
 						loginRequest.email(),
 						loginRequest.password()));
+		sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
 
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(authentication);

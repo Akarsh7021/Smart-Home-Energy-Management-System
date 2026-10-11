@@ -27,6 +27,8 @@ Requirements: Java 21, Docker Desktop, and IntelliJ IDEA.
 
 PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the database and development user, then runs the scripts in `src/main/resources/init-db`. Hibernate only validates the domain schema; it does not create or update application tables. Spring Session creates and manages only its own session tables.
 
+The session cookie is host-only, `HttpOnly`, `Secure`, `SameSite=Strict`, and restricted to the `/` path. The committed default is HTTPS-only. `.env.example` sets `SESSION_COOKIE_SECURE=false` for plain-HTTP local development; production must set it to `true`.
+
 ## API endpoints
 
 | Method | Endpoint | Purpose |
@@ -40,7 +42,7 @@ PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the 
 
 API responses use one common `ApiEnvelope` containing the operation status, message, returned data, or error details. The React Axios interceptor can unwrap this envelope and display notifications before passing data to components.
 
-The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. Axios reads the raw value from the `XSRF-TOKEN` cookie and sends it in the `X-XSRF-TOKEN` header for each `POST`, `PATCH`, or `DELETE`. The token value in Spring's controller argument is masked for BREACH protection and is intentionally not returned in the JSON body.
+The React client must use credentialed requests and call `GET /api/auth/csrf` when the application starts and again after login or logout. A successful login rotates the session ID and deletes the pre-login CSRF cookie; the next `/api/auth/csrf` call creates a fresh token. Axios reads the raw value from the `XSRF-TOKEN` cookie and sends it in the `X-XSRF-TOKEN` header for each `POST`, `PATCH`, or `DELETE`. The token value in Spring's controller argument is masked for BREACH protection and is intentionally not returned in the JSON body.
 
 ```javascript
 const api = axios.create({

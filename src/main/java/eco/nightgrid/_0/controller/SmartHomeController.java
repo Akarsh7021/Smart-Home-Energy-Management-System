@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,6 +88,7 @@ public class SmartHomeController {
 	}
 
 	@PatchMapping("/devices/{deviceId}/state")
+	@PreAuthorize("hasAuthority('CONTROL_DEVICES')")
 	public ApiEnvelope<DeviceDTO> handleDeviceControl(
 			@PathVariable String deviceId,
 			@Valid @RequestBody DeviceControlRequestDTO controlRequest,
@@ -102,6 +104,7 @@ public class SmartHomeController {
 	}
 
 	@PatchMapping("/members/{memberId}/permissions")
+	@PreAuthorize("hasRole('HOMEOWNER')")
 	public ApiEnvelope<UserDTO> handlePermissionUpdate(
 			@PathVariable String memberId,
 			@Valid @RequestBody PermissionUpdateRequestDTO permissionRequest,

@@ -57,6 +57,13 @@ public class GlobalExceptionHandler {
 				exception.getMessage()));
 	}
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiEnvelope<Void>> handleInvalidRequest(IllegalArgumentException exception) {
+		return ResponseEntity.badRequest().body(ApiEnvelope.fail(
+				"INVALID_REQUEST",
+				exception.getMessage()));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiEnvelope<Void>> handleUnexpectedError(Exception exception) {
 		LOGGER.error("Unexpected application error", exception);

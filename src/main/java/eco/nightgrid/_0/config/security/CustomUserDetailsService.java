@@ -2,6 +2,7 @@ package eco.nightgrid._0.config.security;
 
 import eco.nightgrid._0.dao.UserDAO;
 import eco.nightgrid._0.entity.User;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		User user = userDAO.findByEmail(email)
 				.orElseThrow(() -> new UsernameNotFoundException("User account was not found."));
 
-		List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+		List<GrantedAuthority> authorities = new ArrayList<>();
 		authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
 		if (user.hasControlPermission()) {
@@ -35,10 +36,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 			authorities.add(new SimpleGrantedAuthority("VIEW_ENERGY"));
 		}
 
-		return org.springframework.security.core.userdetails.User
-				.withUsername(user.getEmail())
-				.password(user.getPasswordHash())
-				.authorities(authorities)
-				.build();
+		return new AuthenticatedUser(
+				user.getUserId(),
+				user.getEmail(),
+				user.getPasswordHash(),
+				authorities);
 	}
 }

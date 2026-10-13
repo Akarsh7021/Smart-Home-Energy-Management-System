@@ -29,6 +29,22 @@ PostgreSQL is exposed only on `127.0.0.1`. On the first run, Docker creates the 
 
 The session cookie is host-only, `HttpOnly`, `Secure`, `SameSite=Strict`, and restricted to the `/` path. The committed default is HTTPS-only. `.env.example` sets `SESSION_COOKIE_SECURE=false` for plain-HTTP local development; production must set it to `true`.
 
+### Demo accounts
+
+The local mock accounts all use the development-only password `password`:
+
+| Email | Role |
+| --- | --- |
+| `homeowner@example.com` | Homeowner |
+| `family@example.com` | Family member with permissions |
+| `restricted@example.com` | Family member without permissions |
+
+Docker runs files in `init-db` only when it creates an empty PostgreSQL volume. If the seed file changes while an existing volume is running, apply it manually:
+
+```powershell
+docker compose exec -T postgres psql -U nightgrid -d nightgrid -f /docker-entrypoint-initdb.d/02_insert_mock_data.sql
+```
+
 ## API endpoints
 
 | Method | Endpoint | Purpose |

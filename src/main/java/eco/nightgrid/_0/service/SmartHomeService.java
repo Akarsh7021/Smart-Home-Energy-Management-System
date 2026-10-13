@@ -257,10 +257,9 @@ public class SmartHomeService {
 		OffsetDateTime startTime = today.minusDays(ENERGY_SUMMARY_DAYS - 1)
 				.atStartOfDay(PROJECT_ZONE)
 				.toOffsetDateTime();
-		OffsetDateTime endTime = today.plusDays(1)
-				.atStartOfDay(PROJECT_ZONE)
-				.minusNanos(1)
-				.toOffsetDateTime();
+		// Mock data may contain readings for later today. Exclude future samples so
+		// the dashboard's latest-power value represents the most recent known reading.
+		OffsetDateTime endTime = OffsetDateTime.now(PROJECT_ZONE);
 		return deviceReadingDAO.findAllByRecordedAtBetween(startTime, endTime);
 	}
 

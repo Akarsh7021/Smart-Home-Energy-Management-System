@@ -98,7 +98,7 @@ public class SmartHomeService {
 		}
 
 		SmartDevice savedDevice = deviceDAO.save(device);
-		List<DeviceReading> readings = deviceReadingDAO.findByDeviceId(savedDevice.getDeviceId());
+		List<DeviceReading> readings = loadWeeklyReadings(savedDevice.getDeviceId());
 		return toDeviceDTO(savedDevice, readings, currentUser.hasEnergyPermission());
 	}
 
@@ -261,6 +261,17 @@ public class SmartHomeService {
 		// the dashboard's latest-power value represents the most recent known reading.
 		OffsetDateTime endTime = OffsetDateTime.now(PROJECT_ZONE);
 		return deviceReadingDAO.findAllByRecordedAtBetween(startTime, endTime);
+	}
+
+	private List<DeviceReading> loadWeeklyReadings(UUID deviceId) {
+		LocalDate today = LocalDate.now(PROJECT_ZONE);
+		OffsetDateTime startTime = today.minusDays(ENERGY_SUMMARY_DAYS - 1)
+				.atStartOfDay(PROJECT_ZONE)
+				.toOffsetDateTime();
+		return deviceReadingDAO.findForDateRange(
+				deviceId,
+				startTime,
+				OffsetDateTime.now(PROJECT_ZONE));
 	}
 
 	private User findUser(String userId) {
